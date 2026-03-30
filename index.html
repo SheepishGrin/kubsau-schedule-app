@@ -217,103 +217,103 @@
         lastUpdate: document.getElementById('lastUpdate')
     };
 
-    function init() {
-        els.input.value = state.group;
-        if (state.group) {
-            const cached = getCache(state.group);
-            if (cached) { renderSchedule(cached); } 
-            else { fetchSchedule(state.group); }
-        }
+    // ---------- Вспомогательные функции для работы с датами ----------
+    function formatRussianDate(dateStr) {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        const date = new Date(Date.UTC(year, month-1, day));
+        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
     }
 
-    async function fetchSchedule(group, force = false) {
-        if (!group) return;
-        showLoader(true); hideError();
-        els.container.style.display = 'none'; els.empty.style.display = 'none';
-        els.refreshBtn.style.display = 'none';
-
-        try {
-            const response = await fetch(`${API_URL}?group=${encodeURIComponent(group)}`);
-            if (!response.ok) throw new Error((await response.json().catch(()=>({}))).error || `Ошибка ${response.status}`);
-            
-            const data = await response.json();
-            setCache(group, data);
-            state.data = data; state.group = group;
-            localStorage.setItem('kubsau_last_group', group);
-            
-            renderSchedule(data);
-            const date = new Date(data.fetched_at);
-            els.lastUpdate.textContent = `Обновлено: ${date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
-            els.refreshBtn.style.display = 'block';
-        } catch (err) {
-            showError(err.message); els.empty.style.display = 'block';
-        } finally { showLoader(false); }
+    function getTodayDateString() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
-    function renderSchedule(data) {
-        state.currentWeekIndex = 0; 
-        updateTabsUI(); renderDays(0);
-        els.container.style.display = 'block'; els.empty.style.display = 'none';
+    function isPairCurrent(start, end) {
+        const now = new Date();
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        const [sh, sm] = start.split(':').map(Number);
+        const [eh, em] = end.split(':').map(Number);
+        return currentMinutes >= (sh * 60 + sm) && currentMinutes <= (eh * 60 + em);
     }
 
+    // ---------- Работа с кэшем ----------
+    function getCache(group) {
+        const item = localStorage.getItem(`kubsau_cache_${group.toLowerCase()}`);
+        if (!item) return null;
+        const { data, timestamp } = JSON.parse(item);
+        return (Date.now() - timestamp < 24 * 60 * 60 * 1000) ? data : null;
+    }
+    function setCache(group, data) {
+        localStorage.setItem(`kubsau_cache_${group.toLowerCase()}`, JSON.stringify({ data, timestamp: Date.now() }));
+    }
+
+    function showLoader(s) { els.loader.style.display = s ? 'block' : 'none'; }
+    function showError(msg) { els.error.textContent = msg; els.error.style.display = 'block'; }
+    function hideError() { els.error.style.display = 'none'; }
+    function updateTabsUI() {
+        els.tabs.forEach((tab, idx) => idx === state.currentWeekIndex ? tab.classList.add('active') : tab.classList.remove('active'));
+    }
+
+    // ---------- Отрисовка расписания ----------
     function renderDays(weekIndex) {
         els.daysList.innerHTML = '';
         if (!state.data || !state.data.weeks[weekIndex]) {
-            els.daysList.innerHTML = '<div class="empty-state">Нет данных</div>'; return;
+            els.daysList.innerHTML = '<div class="empty-state">Нет данных</div>';
+            return;
         }
 
         const week = state.data.weeks[weekIndex];
-        const now = new Date();
-        const todayName = now.toLocaleDateString('ru-RU', { weekday: 'long' }).replace(/^./, c => c.toUpperCase()); // "Понедельник"
-        const todayDateStr = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+        const todayDateStr = getTodayDateString();
 
         week.days.forEach(day => {
-            const isToday = day.weekday === todayName;
-            
+            const isToday = (day.date === todayDateStr);
+            const formattedDate = day.date ? formatRussianDate(day.date) : '';
+
             const dayBlock = document.createElement('div');
             dayBlock.className = `day-block ${isToday ? 'today' : ''}`;
             
-            let dateDisplay = isToday ? ` (${todayDateStr})` : "";
-
             dayBlock.innerHTML = `
                 <div class="day-title">
                     ${day.weekday}
-                    <span class="day-date">${dateDisplay}</span>
+                    <span class="day-date">${formattedDate}</span>
                 </div>
                 <div class="pairs-wrapper"></div>
             `;
-
+            
             const wrapper = dayBlock.querySelector('.pairs-wrapper');
-
-            if (day.pairs.length === 0) {
+            
+            if (!day.pairs || day.pairs.length === 0) {
                 wrapper.innerHTML = '<div class="pair-card empty"><div class="pair-subject">Выходной</div></div>';
             } else {
                 day.pairs.forEach(pair => {
                     const isCurrent = isToday && isPairCurrent(pair.start_time, pair.end_time);
-                    
-                    // Добавляем класс типа занятия (lecture/seminar)
                     const typeClass = pair.type === 'seminar' ? 'seminar' : 'lecture';
                     const emptyClass = !pair.has_lesson ? 'empty' : '';
                     const currentClass = isCurrent ? 'current' : '';
-
+                    
                     const card = document.createElement('div');
                     card.className = `pair-card ${typeClass} ${emptyClass} ${currentClass}`;
                     
                     const subjectText = pair.has_lesson ? pair.subject : "Окно";
                     const teachersText = pair.teachers?.length ? pair.teachers.join(', ') : '';
                     const roomsText = pair.rooms?.length ? pair.rooms.join(', ') : '';
-
+                    
                     let detailsHtml = '';
-                    if (teachersText) detailsHtml += `<span> ${teachersText}</span>`;
-                    if (roomsText) detailsHtml += `<span> ${roomsText}</span>`;
-
-                    // Добавляем бейджик типа занятия, если это не окно
+                    if (teachersText) detailsHtml += `<span>👨‍🏫 ${teachersText}</span>`;
+                    if (roomsText) detailsHtml += `<span>🏢 ${roomsText}</span>`;
+                    
                     let typeBadge = '';
                     if (pair.has_lesson) {
-                        typeBadge = pair.type === 'seminar' ? '<span style="font-size:10px; background:#10b981; color:white; padding:2px 4px; border-radius:4px; margin-left:6px;">СЕМИНАР</span>' : 
-                                     '<span style="font-size:10px; background:#3b82f6; color:white; padding:2px 4px; border-radius:4px; margin-left:6px;">ЛЕКЦИЯ</span>';
+                        typeBadge = pair.type === 'seminar' 
+                            ? '<span style="font-size:10px; background:#10b981; color:white; padding:2px 6px; border-radius:4px; margin-left:6px;">ПРАКТИКА</span>' 
+                            : '<span style="font-size:10px; background:#3b82f6; color:white; padding:2px 6px; border-radius:4px; margin-left:6px;">ЛЕКЦИЯ</span>';
                     }
-
+                    
                     card.innerHTML = `
                         <div class="pair-header">
                             <span>${pair.time_range}</span>
@@ -329,34 +329,66 @@
         });
     }
 
-    function isPairCurrent(start, end) {
-        const now = new Date();
-        const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        const [sh, sm] = start.split(':').map(Number);
-        const [eh, em] = end.split(':').map(Number);
-        return currentMinutes >= (sh * 60 + sm) && currentMinutes <= (eh * 60 + em);
+    function renderSchedule(data) {
+        state.data = data;
+        state.currentWeekIndex = 0; 
+        updateTabsUI();
+        renderDays(0);
+        els.container.style.display = 'block';
+        els.empty.style.display = 'none';
     }
 
-    function getCache(group) {
-        const item = localStorage.getItem(`kubsau_cache_${group.toLowerCase()}`);
-        if (!item) return null;
-        const { data, timestamp } = JSON.parse(item);
-        return (Date.now() - timestamp < 24 * 60 * 60 * 1000) ? data : null;
+    // ---------- Загрузка данных с сервера ----------
+    async function fetchSchedule(group, force = false) {
+        if (!group) return;
+        showLoader(true);
+        hideError();
+        els.container.style.display = 'none';
+        els.empty.style.display = 'none';
+        els.refreshBtn.style.display = 'none';
+
+        try {
+            const response = await fetch(`${API_URL}?group=${encodeURIComponent(group)}`);
+            if (!response.ok) throw new Error((await response.json().catch(()=>({}))).error || `Ошибка ${response.status}`);
+            
+            const data = await response.json();
+            setCache(group, data);
+            state.group = group;
+            localStorage.setItem('kubsau_last_group', group);
+            
+            renderSchedule(data);
+            const date = new Date(data.fetched_at);
+            els.lastUpdate.textContent = `Обновлено: ${date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+            els.refreshBtn.style.display = 'block';
+        } catch (err) {
+            showError(err.message);
+            els.empty.style.display = 'block';
+        } finally {
+            showLoader(false);
+        }
     }
-    function setCache(group, data) {
-        localStorage.setItem(`kubsau_cache_${group.toLowerCase()}`, JSON.stringify({ data, timestamp: Date.now() }));
-    }
-    function showLoader(s) { els.loader.style.display = s ? 'block' : 'none'; }
-    function showError(msg) { els.error.textContent = msg; els.error.style.display = 'block'; }
-    function hideError() { els.error.style.display = 'none'; }
-    function updateTabsUI() {
-        els.tabs.forEach((tab, idx) => idx === state.currentWeekIndex ? tab.classList.add('active') : tab.classList.remove('active'));
+
+    // ---------- Инициализация и обработчики ----------
+    function init() {
+        els.input.value = state.group;
+        if (state.group) {
+            const cached = getCache(state.group);
+            if (cached) {
+                renderSchedule(cached);
+            } else {
+                fetchSchedule(state.group);
+            }
+        }
     }
 
     els.searchBtn.addEventListener('click', () => { if(els.input.value.trim()) fetchSchedule(els.input.value.trim(), true); });
     els.input.addEventListener('keypress', (e) => { if (e.key === 'Enter') els.searchBtn.click(); });
     els.refreshBtn.addEventListener('click', () => { if (state.group) fetchSchedule(state.group, true); });
-    els.tabs.forEach((tab, idx) => tab.addEventListener('click', () => { state.currentWeekIndex = idx; updateTabsUI(); renderDays(idx); }));
+    els.tabs.forEach((tab, idx) => tab.addEventListener('click', () => { 
+        state.currentWeekIndex = idx; 
+        updateTabsUI(); 
+        renderDays(idx); 
+    }));
 
     init();
 </script>

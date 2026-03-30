@@ -18,7 +18,8 @@
             --lecture-bg: rgba(59, 130, 246, 0.08);
             --seminar-border: #10b981;
             --seminar-bg: rgba(16, 185, 129, 0.08);
-            --current-pulse: #ff4d4d;
+            --current-pulse: #e53e3e;
+            --current-bg: rgba(229, 62, 62, 0.12);
             --card-radius: 14px;
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
@@ -39,7 +40,6 @@
             position: relative;
         }
 
-        /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
         .content {
             flex: 1;
             overflow-y: auto;
@@ -47,7 +47,7 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* ========== ПАНЕЛЬ ПОИСКА (по умолчанию для ПК — сверху) ========== */
+        /* Панель поиска (по умолчанию для ПК — сверху) */
         .header {
             padding: 14px 16px;
             background-color: var(--secondary-bg-color);
@@ -124,7 +124,7 @@
             background: rgba(51, 144, 236, 0.1);
         }
 
-        /* ========== ТАБЫ ========== */
+        /* Табы */
         .tabs {
             display: flex;
             background-color: var(--secondary-bg-color);
@@ -153,21 +153,30 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
-        /* ========== ДНИ И ПАРЫ ========== */
+        /* Дни */
         .day-block {
             margin-bottom: 28px;
             opacity: 0.7;
             transition: opacity 0.2s, transform 0.2s;
+            border-radius: var(--card-radius);
+            padding: 4px 0;
         }
 
+        /* Текущий день — сильное выделение */
         .day-block.today {
             opacity: 1;
-            transform: scale(1.01);
+            background-color: rgba(51, 144, 236, 0.12);
+            padding: 8px 12px;
+            margin-left: -12px;
+            margin-right: -12px;
+            border-radius: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
 
         .day-block.today .day-title {
             color: var(--button-color);
             border-bottom-color: var(--button-color);
+            font-size: 1.1em;
         }
 
         .day-title {
@@ -188,6 +197,7 @@
             color: var(--hint-color);
         }
 
+        /* Карточка пары */
         .pair-card {
             background-color: var(--secondary-bg-color);
             border-radius: var(--card-radius);
@@ -225,10 +235,17 @@
             color: var(--hint-color);
         }
 
+        /* Текущая пара — максимально контрастно */
         .pair-card.current {
+            background-color: var(--current-bg);
             border: 2px solid var(--current-pulse);
+            box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
             animation: pulse-border 2s infinite;
             z-index: 2;
+        }
+        .pair-card.current .pair-subject {
+            font-weight: 800;
+            color: var(--current-pulse);
         }
         .pair-card.current::after {
             content: "ИДЕТ СЕЙЧАС";
@@ -237,17 +254,17 @@
             right: 0;
             background: var(--current-pulse);
             color: white;
-            font-size: 10px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 800;
             padding: 4px 10px;
             border-bottom-left-radius: 10px;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.5px;
         }
 
         @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.5); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(229, 62, 62, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); }
         }
 
         .pair-header {
@@ -264,7 +281,6 @@
             font-size: 17px;
             font-weight: 700;
             line-height: 1.35;
-            letter-spacing: -0.2px;
         }
 
         .pair-details {
@@ -283,7 +299,7 @@
             flex-wrap: wrap;
         }
 
-        /* Состояния загрузки / ошибки */
+        /* Загрузка, ошибки */
         .loader {
             text-align: center;
             padding: 48px 20px;
@@ -306,7 +322,7 @@
             text-align: center;
             padding: 20px;
             display: none;
-            background: rgba(255, 77, 77, 0.08);
+            background: rgba(229, 62, 62, 0.08);
             border-radius: var(--card-radius);
             margin: 20px;
             font-weight: 500;
@@ -323,20 +339,18 @@
             font-weight: 600;
         }
 
-        /* ========== МОБИЛЬНАЯ ВЕРСИЯ (телефоны): панель поиска СНИЗУ ========== */
+        /* Мобильная версия: панель поиска СНИЗУ */
         @media (max-width: 768px) {
             body {
                 position: relative;
                 padding-bottom: 0;
             }
-            /* Фиксируем панель поиска внизу */
             .header {
                 position: fixed;
                 bottom: 0;
                 left: 0;
                 right: 0;
                 background-color: var(--secondary-bg-color);
-                backdrop-filter: blur(0px);
                 box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
                 border-top-left-radius: 20px;
                 border-top-right-radius: 20px;
@@ -345,13 +359,11 @@
                 border-top: 1px solid rgba(0,0,0,0.05);
                 border-bottom: none;
             }
-            /* Добавляем отступ снизу контенту, чтобы он не перекрывался */
             .content {
                 padding-bottom: 110px;
                 padding-left: 14px;
                 padding-right: 14px;
             }
-            /* Увеличенные области касания */
             .input-group {
                 gap: 12px;
             }
@@ -387,13 +399,14 @@
             .day-title {
                 font-size: 19px;
             }
-            .pair-details span {
-                word-break: break-word;
-                white-space: normal;
+            /* Усиление текущего дня на мобильных */
+            .day-block.today {
+                margin-left: -8px;
+                margin-right: -8px;
+                padding: 8px 8px;
             }
         }
 
-        /* Для совсем узких телефонов */
         @media (max-width: 480px) {
             .header {
                 padding: 10px 14px calc(10px + var(--safe-bottom));
@@ -415,7 +428,7 @@
             }
         }
 
-        /* ПК-версия: панель поиска сверху, без фиксации */
+        /* ПК-версия: панель поиска сверху */
         @media (min-width: 769px) {
             .header {
                 position: relative;
@@ -447,317 +460,518 @@
 </head>
 <body>
 
-<!-- Панель поиска (на ПК — сверху, на телефонах — снизу) -->
 <div class="header">
     <div class="input-group">
         <input type="text" id="groupInput" placeholder="Номер группы (ПИ2403)" autocomplete="off" spellcheck="false">
-        <button id="searchBtn" class="search-btn">🔍 Найти</button>
+        <button id="searchBtn" class="search-btn">Найти</button>
     </div>
     <div class="meta-info">
         <span id="lastUpdate"></span>
-        <span id="refreshBtn" class="refresh-link" style="display:none;">⟳ Обновить</span>
+        <span id="refreshBtn" class="refresh-link" style="display:none;">Обновить</span>
     </div>
 </div>
 
-<!-- Основной контент (расписание) -->
 <div class="content">
     <div id="loader" class="loader"><div class="spinner"></div>Загрузка...</div>
     <div id="error" class="error-msg"></div>
-    <div id="emptyState" class="empty-state"><h3>📚 Введите номер группы</h3><p>Например: ПИ2403, ИС2301</p></div>
+    <div id="emptyState" class="empty-state"><h3>Введите номер группы</h3><p>Например: ПИ2403, ИС2301</p></div>
 
     <div id="scheduleContainer" style="display: none;">
         <div class="tabs">
-            <div class="tab active" data-week="0">📅 Текущая неделя</div>
-            <div class="tab" data-week="1">⏩ Следующая неделя</div>
+            <div class="tab active" data-week="0">Текущая неделя</div>
+           >
+            <div class <div class="="tab" data-week="1">Следующая неделя</div>
+        </tab" data-week="1">Следующая неделя</div>
         </div>
-        <div id="daysList"></div>
+       div>
+        <div id <div id="days="daysList"></div>
+    </div>
+</List"></div>
     </div>
 </div>
 
-<script>
-    // ---------- КОНФИГУРАЦИЯ ----------
-    const API_URL = 'https://kubsau-schedule-api.onrender.com/schedule'; 
+<scriptdiv>
 
-    const tg = window.Telegram.WebApp;
-    tg.ready();
+<script>
+    const API>
+    const API_URL =_URL = 'https:// 'https://kkubsauubsau-schedule-schedule-api.onrender.com/schedule'; 
+
+    const tg = window.Telegram-api.onrender.com/schedule'; 
+
+    const tg = window.Telegram.WebApp.WebApp;
+    tg.;
+    tg.readyready();
     tg.expand();
-    tg.MainButton.setText("ЗАКРЫТЬ");
-    tg.MainButton.onClick(() => tg.close());
+   ();
+    tg.expand tg.MainButton();
+    tg.MainButton.setText(".setText("ЗАКРЗАКРЫТЫТЬ");
+    tg.MainЬButton.on");
+    tg.MainButton.onClick(() => tgClick(() => tg.close());
 
     const state = {
-        group: localStorage.getItem('kubsau_last_group') || '',
+       .close());
+
+    const state = {
+        group: localStorage.getItem group: localStorage.getItem('k('kubsau_last_groupubsau_last_group') || '',
+        data:') || '',
         data: null,
-        currentWeekIndex: 0
+        currentWeekIndex null,
+        currentWeekIndex: : 0
+   0
     };
 
-    const els = {
-        input: document.getElementById('groupInput'),
-        searchBtn: document.getElementById('searchBtn'),
-        refreshBtn: document.getElementById('refreshBtn'),
-        loader: document.getElementById('loader'),
-        error: document.getElementById('error'),
-        empty: document.getElementById('emptyState'),
-        container: document.getElementById('scheduleContainer'),
-        daysList: document.getElementById('daysList'),
-        tabs: document.querySelectorAll('.tab'),
-        lastUpdate: document.getElementById('lastUpdate')
+    const };
+
+    const els = els = {
+        input: {
+        input: document.getElementById document.getElementById('groupInput('groupInput'),
+        search'),
+        searchBtn: document.getElementByIdBtn: document.getElementById('search('searchBtn'),
+        refreshBtn'),
+        refreshBtn:Btn: document.getElementById('refresh document.getElementById('refreshBtnBtn'),
+        loader: document'),
+        loader: document.getElementById('.getElementById('loaderloader'),
+        error: document'),
+        error: document.getElementById('.getElementById('error'),
+        emptyerror'),
+        empty: document: document.getElementById('empty.getElementById('emptyState'),
+       State'),
+        container: container: document.getElementById('sche document.getElementById('scheduleContainer'),
+       duleContainer daysList'),
+        daysList: document: document.getElementById('.getElementById('daysList'),
+        tabs: document.querySelectordaysList'),
+        tabs:All('.tab'),
+        document.querySelectorAll('.tab'),
+        last lastUpdate: document.getElementByIdUpdate: document.getElementById('last('lastUpdate')
+   Update')
     };
 
-    // ---------- Вспомогательные функции ----------
-    function formatRussianDate(dateStr) {
-        if (!dateStr) return '';
-        const [year, month, day] = dateStr.split('-');
-        const date = new Date(Date.UTC(year, month - 1, day));
-        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    function formatRussian };
+
+    function formatRussianDate(dateDate(dateStr) {
+       Str) {
+        if (! if (!dateStr) returndateStr) return '';
+        const '';
+        const [year, month, [year, month, day] day] = dateStr.split = dateStr.split('-('-');
+        const date =');
+        const date = new Date new Date(Date.UTC(year(Date.UTC(year, month, month--1,1, day day));
+        return));
+        return date.to date.toLocaleDateLocaleDateString('String('ru-RU',ru-RU', { day { day: ': 'numeric', month:numeric', month: 'long 'long'' });
+    });
     }
 
-    function getTodayDateString() {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+    function }
+
+    function getTodayDateString getTodayDateString()() {
+        const {
+        const today = today = new Date new Date();
+        const year();
+        const year = today = today.getFullYear.getFullYear();
+        const();
+        const month = month = String(today.get String(today.getMonth() + Month() + 1).padStart(2, '0');
+        const day =1).padStart(2, '0');
+        const day = String(today.getDate()).padStart String(today.getDate()).padStart(2(2, ', '00');
+        return `${year');
+        return}-${ `${year}-${month}-${daymonth}-}`${day}`;
+   ;
     }
 
-    function isPairCurrent(start, end) {
-        const now = new Date();
-        const currentMinutes = now.getHours() * 60 + now.getMinutes();
-        const [sh, sm] = start.split(':').map(Number);
-        const [eh, em] = end.split(':').map(Number);
-        const startMinutes = sh * 60 + sm;
-        const endMinutes = eh * 60 + em;
-        return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+    function }
+
+    function isPair isPairCurrent(startCurrent(start, end, end) {
+        const) {
+        const now = new Date now = new Date();
+();
+               const current const currentMinutes =Minutes = now.get now.getHours()Hours() *  * 60 + now.getMinutes60 + now.getMinutes();
+        const();
+        const [sh, sm [sh, sm] = start.split] = start.split(':').(':').map(Numbermap(Number);
+        const);
+        const [eh [eh, em] =, em] = end.split end.split(':').(':').map(map(NumberNumber);
+        return);
+        return currentMinutes currentMinutes >= (sh*60+ >= (sh*60+sm)sm) && current && currentMinutes <=Minutes <= (eh (eh*60+em);
     }
 
-    function getCache(group) {
-        const item = localStorage.getItem(`kubsau_cache_${group.toLowerCase()}`);
-        if (!item) return null;
-        const { data, timestamp } = JSON.parse(item);
-        return (Date.now() - timestamp < 24 * 60 * 60 * 1000) ? data : null;
+    function get*60+em);
     }
 
-    function setCache(group, data) {
-        localStorage.setItem(`kubsau_cache_${group.toLowerCase()}`, JSON.stringify({ data, timestamp: Date.now() }));
+    function getCache(group)Cache(group) {
+        const item = localStorage.getItem {
+        const item = localStorage.getItem(`k(`kubsubsau_cache_au_cache_${group${group.toLowerCase()}`);
+        if (!.toLowerCase()}`);
+item)        if (!item) return null;
+        return null;
+        const { const { data, data, timestamp } timestamp } = JSON = JSON.parse(item);
+        return (.parse(item);
+        return (Date.nowDate.now() - timestamp() - timestamp < 24 < 24*60*60*1000) ?*60*60*1000 data :) ? data : null null;
+;
+       }
+
+    function }
+
+    function setCache(group, setCache(group, data) {
+        localStorage.set data) {
+        localStorage.setItem(`kubsau_cacheItem(`kubsau_cache_${_${group.toLowerCase()}`, JSON.stringifygroup.toLowerCase()}`, JSON.stringify({ data, timestamp({ data, timestamp: Date.now() }));
     }
 
-    function showLoader(show) {
-        els.loader.style.display = show ? 'block' : 'none';
+   : Date.now() }));
     }
 
-    function showError(msg) {
-        els.error.textContent = msg;
-        els.error.style.display = 'block';
-        els.container.style.display = 'none';
-        els.empty.style.display = 'none';
+    function show function showLoader(show)Loader(show) { els { els.loader.style.display = show.loader.style.display = show ? ' ? 'block'block' : ' : 'none';none'; }
     }
-
-    function hideError() {
-        els.error.style.display = 'none';
+    function show function showError(msgError(msg) { els.error) { els.error.textContent.textContent = msg; els = msg; els.error.style.error.style.display =.display = 'block 'block'; els'; els.container.style.display =.container.style 'none.display = 'none'; els.empty.style'; els.empty.style.display =.display = 'none 'none';'; }
+    function }
+    function hideError hideError() { els.error() { els.error.style.display.style.display = 'none'; = 'none'; }
     }
+    function updateTabs function updateTabsUI()UI() { { els.tabs.forEach els.tabs.forEach((tab, idx((tab, idx) =>) => idx === idx === state.current state.currentWeekIndexWeekIndex ? tab ? tab.classList.add('active.classList.add('active') :') : tab.classList.remove(' tab.classList.remove('active'active'));)); }
 
-    function updateTabsUI() {
-        els.tabs.forEach((tab, idx) => {
-            if (idx === state.currentWeekIndex) tab.classList.add('active');
-            else tab.classList.remove('active');
-        });
-    }
+    function escapeHtml }
 
-    function escapeHtml(str) {
+    function escapeHtml(str)(str) {
+        if (! {
         if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
+        return str.replacestr) return '';
+        return str.replace(/(/[&<>[&<>]/g]/g, function, function(m)(m) {
+            if ( {
+            if (m === '&') return '&m === '&') returnamp; '&amp;';
+           ';
+            if (m === if (m === '<') return '&lt '<') return '&lt;;';
+            if';
+            if (m (m === ' === '>') return '>') return '&gt&gt;';
+            return;';
+            return m m;
+       ;
         });
     }
 
     function renderDays(weekIndex) {
-        els.daysList.innerHTML = '';
-        if (!state.data || !state.data.weeks[weekIndex]) {
-            els.daysList.innerHTML = '<div class="empty-state">📭 Нет расписания на эту неделю</div>';
-            return;
-        }
-
-        const week = state.data.weeks[weekIndex];
-        const todayDateStr = getTodayDateString();
-
-        week.days.forEach(day => {
-            const isToday = (day.date === todayDateStr);
-            const formattedDate = day.date ? formatRussianDate(day.date) : '';
-
-            const dayBlock = document.createElement('div');
-            dayBlock.className = `day-block ${isToday ? 'today' : ''}`;
-            
-            dayBlock.innerHTML = `
-                <div class="day-title">
-                    <span>${day.weekday}</span>
-                    <span class="day-date">${formattedDate}</span>
-                </div>
-                <div class="pairs-wrapper"></div>
-            `;
-            
-            const wrapper = dayBlock.querySelector('.pairs-wrapper');
-            
-            if (!day.pairs || day.pairs.length === 0) {
-                wrapper.innerHTML = '<div class="pair-card empty"><div class="pair-subject">✨ Выходной / нет пар</div></div>';
-            } else {
-                day.pairs.forEach(pair => {
-                    const isCurrent = isToday && isPairCurrent(pair.start_time, pair.end_time);
-                    const typeClass = pair.type === 'seminar' ? 'seminar' : 'lecture';
-                    const emptyClass = !pair.has_lesson ? 'empty' : '';
-                    const currentClass = isCurrent ? 'current' : '';
-                    
-                    const card = document.createElement('div');
-                    card.className = `pair-card ${typeClass} ${emptyClass} ${currentClass}`;
-                    
-                    const subjectText = pair.has_lesson ? pair.subject : "Окно (нет занятия)";
-                    const teachersText = pair.teachers?.length ? pair.teachers.join(', ') : '';
-                    const roomsText = pair.rooms?.length ? pair.rooms.join(', ') : '';
-                    
-                    let detailsHtml = '';
-                    if (teachersText) detailsHtml += `<span>👨‍🏫 ${escapeHtml(teachersText)}</span>`;
-                    if (roomsText) detailsHtml += `<span>🏛️ ${escapeHtml(roomsText)}</span>`;
-                    
-                    let typeBadge = '';
-                    if (pair.has_lesson) {
-                        typeBadge = pair.type === 'seminar' 
-                            ? '<span style="font-size:10px; background:#10b981; color:white; padding:3px 8px; border-radius:30px; font-weight:600;">ПРАКТИКА</span>' 
-                            : '<span style="font-size:10px; background:#3b82f6; color:white; padding:3px 8px; border-radius:30px; font-weight:600;">ЛЕКЦИЯ</span>';
-                    }
-                    
-                    card.innerHTML = `
-                        <div class="pair-header">
-                            <span>⏰ ${pair.time_range}</span>
-                            ${typeBadge}
-                        </div>
-                        <div class="pair-subject">${escapeHtml(subjectText)}</div>
-                        ${detailsHtml ? `<div class="pair-details">${detailsHtml}</div>` : ''}
-                    `;
-                    wrapper.appendChild(card);
-                });
-            }
-            els.daysList.appendChild(dayBlock);
-        });
+        els.d });
     }
 
-    function renderSchedule(data) {
-        state.data = data;
-        state.currentWeekIndex = 0;
-        updateTabsUI();
+    function renderDays(weekIndex) {
+        els.daysListaysList.innerHTML =.innerHTML = '';
+        if (! '';
+        if (!state.datastate.data || !state.data.weeks[weekIndex]) {
+            els.daysList.innerHTML = '<div class="empty-state">Нет расписания на эту неделю</div>';
+            return || !state.data.weeks[weekIndex]) {
+            els.daysList.innerHTML = '<div class="empty-state">Нет расписания на эту неделю</div>';
+            return;
+       ;
+        }
+
+        }
+
+        const week const week = state = state.data..data.weeks[weekweeksIndex];
+       [weekIndex];
+        const const todayDate todayDateStr =Str = getToday getTodayDateStringDateString();
+
+       ();
+
+        week.days.forEach week.d(dayays.forEach => {
+            const(day => {
+            const isToday = ( isToday = (day.dateday.date === todayDateStr);
+            === todayDateStr);
+            const formatted const formattedDate =Date = day.date ? formatRussianDate day.date ? formatRussianDate(day(day.date).date) : ' : '';
+
+           ';
+
+            const day const dayBlock = document.createElementBlock = document.createElement('div('div');
+            dayBlock');
+            dayBlock.className.className = ` = `day-blockday-block ${is ${isToday ?Today ? 'today 'today' :' : ''}` ''}`;
+;
+            
+            day            
+            dayBlock.innerHTMLBlock.innerHTML = = `
+                `
+                <div class <div class="day-title="day-title">
+                    <span>${day">
+                    <span>${day.weekday}</span.weekday}</span>
+                   >
+                    <span class <span class="day-date">="day-date">${form${formattedDateattedDate}</span}</span>
+               >
+                </div>
+                <div </div>
+                <div class=" class="pairspairs-wrapper"></-wrapper"></divdiv>
+            `>
+            `;
+;
+            
+            const wrapper = dayBlock            
+            const wrapper = dayBlock.querySelector('.pairs.querySelector('.pairs-wrapper-wrapper');
+            
+           ');
+            
+            if (! if (!day.pday.pairs ||airs || day.p day.pairs.length === airs.length === 0)0) {
+                {
+                wrapper.innerHTML wrapper.innerHTML = = '<div class '<div class="pair="pair-card empty-card empty"><div"><div class="pair-subject"> class="pair-subject">ВыхВыходнойодной / нет / нет пар</ пар</div></div></divdiv>';
+            } else>';
+            } {
+                day.pairs else {
+                day.pairs.forEach(p.forEach(pair =>air => {
+                    {
+                    const is const isCurrent =Current = isToday && is isToday && isPairCurrentPairCurrent(pair(pair.start_time.start_time, pair, pair.end_time.end_time);
+                   );
+                    const typeClass = pair.type const typeClass = pair.type === ' === 'seminarseminar' ?' ? 'sem 'seminar'inar' : ' : 'lecturelecture';
+                   ';
+                    const emptyClass = const emptyClass = !pair.has_ !pair.has_lesson ?lesson ? 'empty 'empty' :' : '';
+                    '';
+                    const currentClass = const currentClass = isCurrent ? ' isCurrent ? 'current'current' : : '';
+                    
+                    '';
+                    
+                    const card const card = document = document.createElement('.createElement('divdiv');
+                    card.className');
+                    card.className = ` = `pair-cardpair-card ${type ${typeClass}Class} ${empty ${emptyClass}Class} ${current ${currentClass}`;
+Class}`;
+                    
+                    const                    
+                    const subjectText subjectText = pair = pair.has_.has_lesson ?lesson ? pair.subject : " pair.subject : "ОкОкно (нет занятияно (нет занятия))";
+                    const";
+                    const teachersText teachersText = pair = pair.teachers?.length ? pair.teachers.teachers?.length ? pair.join(',.teachers.join(', ') : '';
+                    ') : '';
+                    const roomsText = const roomsText = pair. pair.rooms?.rooms?.length ? pair.length ? pair.rooms.joinrooms.join(', ') :(', ') : '';
+                    
+                    let detailsHtml = '';
+                    
+                    let detailsHtml = '';
+                    if ( '';
+                    if (teachersText) detailsHtml +=teachersText) detailsHtml += `<span `<span>${>${escapeHtmlescapeHtml(teachers(teachersText)}Text)}</span></span>`;
+                    if (rooms`;
+                    if (roomsText)Text) detailsHtml += detailsHtml `<span> += `<span>${escapeHtml(${escaperoomsTextHtml(roomsText)}</)}</span>`;
+span>`;
+                    
+                    let                    
+                    let typeBadge = typeBadge = '';
+                    if (pair.has '';
+                    if (pair.has_lesson_lesson)) {
+                        typeBadge {
+                        typeBadge = pair = pair.type === 'sem.type ===inar' 'seminar' 
+                            ? 
+                            ? '<span style '<span style="font-size:="font-size:10px10px; background:#10; background:#10b981b981; color:white; color; padding:white; padding:3px :3px 8px8px; border; border-radius:30px-radius:30px; font; font-weight:600;">-weight:ПРА600;">ПРАКТИКТИКА</КА</span>'span>' 
+                            : 
+                            '<span style : '<span style="font-size:10px; background="font-size:10px; background:#3:#3bb8282f6f6; color; color:white:white; padding:3; paddingpx 8px:3px 8px; border; border-radius:-radius:30px30px; font; font-weight:-weight:600;">ЛЕ600;">ЛЕКЦИКЦИЯ</Я</span>';
+                   span>';
+                    }
+                    
+                    }
+                    
+                    card.innerHTML card.innerHTML = = `
+                        `
+                        <div class <div class="pair-header="pair-header">
+                           ">
+                            <span>${pair <span>${pair.time_range.time_range}</span}</span>
+                           >
+                            ${type ${typeBadgeBadge}
+                       }
+                        </div </div>
+                       >
+                        <div class=" <divpair-sub class="pair-subject">${escapeject">${escapeHtml(subjectText)}</Html(subjectText)}</div>
+                        ${detailsHtml ? `<div class="pair-details">${detailsHtmldiv>
+                        ${detailsHtml ? `<div class="pair-details">${detailsHtml}</div}</div>` : ''>` : ''}
+                    `}
+                    `;
+                   ;
+                    wrapper.appendChild(card);
+                });
+            wrapper.appendChild(card }
+           );
+                });
+            }
+            els.d els.daysList.appendChild(aysList.appendChild(dayBlockdayBlock);
+       );
+        });
+    });
+    }
+
+    function renderSchedule(data }
+
+    function renderSchedule(data)) {
+        state {
+        state.data =.data = data data;
+        state;
+        state.currentWeek.currentWeekIndex = 0Index =;
+        updateT 0;
+       absUI updateT();
+        renderDays(0absUI();
         renderDays(0);
-        els.container.style.display = 'block';
+       );
+        els.container els.container.style.display.style.display = ' = 'blockblock';
+        els.empty.style.display = 'none';
+       ';
         els.empty.style.display = 'none';
         hideError();
+    }
+
+    async function fetchSchedule(group, force = hideError();
     }
 
     async function fetchSchedule(group, force = false) {
-        if (!group || group.trim() === '') {
-            showError('Пожалуйста, введите номер группы');
-            return;
+        false) {
+        if (! if (!group ||group || group.trim group.trim() === '') {
+            showError() === '') {
+            showError('П('Пожалуйста,ожалуйста, введите введите номер группы');
+            номер группы');
+            return return;
+       ;
         }
-        group = group.trim();
+        group = group }
+        group.trim = group.trim();
+        showLoader(true();
         showLoader(true);
-        hideError();
+       );
+        hideError hideError();
+       ();
         els.container.style.display = 'none';
-        els.empty.style.display = 'none';
-        els.refreshBtn.style.display = 'none';
+        els els.container.style.display = 'none';
+        els.empty.style.empty.style.display =.display = 'none';
+        'none';
+        els.ref els.refreshBtn.style.display = 'reshBtn.style.display = 'none';
 
         try {
-            const response = await fetch(`${API_URL}?group=${encodeURIComponent(group)}`);
-            if (!response.ok) {
-                let errMsg = `Ошибка ${response.status}`;
+            const response = awaitnone';
+
+        try {
+            const response = await fetch(`${ fetch(`${API_URL}?group=${encodeURIComponent(group)}`);
+            ifAPI_URL}?group=${encodeURIComponent(group)}`);
+            if (!response.ok) (!response.ok) {
+                {
+                let errMsg = let errMsg = `О `Ошибкашибка ${response ${response.status}`.status}`;
+                try;
                 try {
-                    const errJson = await response.json();
-                    errMsg = errJson.error || errMsg;
-                } catch(e) {}
-                throw new Error(errMsg);
+                    const errJson {
+                    const = await errJson = await response.json response.json();
+                   ();
+                    errMsg errMsg = err = errJson.errorJson.error || errMsg || errMsg;
+                };
+                } catch(e catch(e)) {}
+                throw {}
+                throw new Error new Error(errMsg(errMsg);
+           );
             }
-            
-            const data = await response.json();
-            if (!data.weeks || !Array.isArray(data.weeks) || data.weeks.length === 0) {
-                throw new Error('Не удалось загрузить расписание: некорректный формат');
+            const data }
+            = await const data = await response.json();
+            if (! response.json();
+            if (!data.data.weeksweeks || !Array.isArray(data.we || !Array.isArray(data.weeks)eks) || data.we || data.weeks.lengtheks.length ===  === 0) {
+0) {
+                throw new                throw new Error('Не уда Error('Не удалось загрузить расписание: неклось загрузить расписание: некорреорректныйктный формат');
+            формат');
             }
+            setCache }
             setCache(group, data);
-            state.group = group;
-            localStorage.setItem('kubsau_last_group', group);
-            
-            renderSchedule(data);
-            const date = new Date(data.fetched_at);
-            const timeStr = date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            els.lastUpdate.textContent = `🕒 Обновлено: ${timeStr}`;
-            els.refreshBtn.style.display = 'inline-block';
-        } catch (err) {
-            console.error(err);
-            showError(`❌ ${err.message || 'Не удалось загрузить расписание. Проверьте группу или связь.'}`);
-            els.empty.style.display = 'block';
+            state(group, data);
+            state.group =.group = group group;
+            localStorage;
+            localStorage.setItem.setItem('k('kubsauubsau_last_group', group_last_group);
+            renderSchedule', group);
+            renderSchedule(data(data);
+            const date =);
+            const date = new Date new Date(data.f(data.fetched_at);
+            constetched_at);
+            const timeStr timeStr = = date.toLocale date.toLocaleTimeString([],TimeString([], {hour {hour:'2-digit',:'2-digit', minute:' minute:'2-digit2-digit'});
+            els'});
+            els.lastUpdate.textContent.lastUpdate.textContent = ` = `Обновлено:Обновлено: ${time ${timeStr}`Str}`;
+            els.ref;
+            els.refreshBtnreshBtn.style.display = '.style.display = 'inline-blockinline-block';
+        } catch';
+        } catch (err (err) {
+            console) {
+            console.error(err.error(err);
+            showError);
+            showError(`О(`Ошибкашибка: ${err.message: ${err.message || ' || 'Не удалось заНе удалось загрузитьгрузить расписание. Пров расписание. Проверьтеерьте группу или свя группу или связь.'зь.'}`);
+           }`);
+            els.empty.style.display els.empty.style.display = 'block';
+        } = 'block';
         } finally {
             showLoader(false);
         }
     }
 
     function init() {
-        els.input.value = state.group;
-        if (state.group) {
-            const cached = getCache(state.group);
-            if (cached) {
-                renderSchedule(cached);
-                if (cached.fetched_at) {
-                    const date = new Date(cached.fetched_at);
-                    els.lastUpdate.textContent = `🕒 Кэш: ${date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+        els finally {
+            showLoader(false);
+        }
+    }
+
+    function init() {
+        els.input.value.input.value = state.group = state.group;
+        if;
+        if (state (state.group) {
+           .group) {
+            const cached const cached = getCache(state = getCache(state.group.group);
+            if (c);
+            if (cached)ached) {
+                renderSchedule {
+                renderSchedule(cached(cached);
+                if ();
+               cached if (cached.fet.fetched_at)ched_at) {
+                    const {
+                    const date = new Date date = new Date(cached(cached.fetched_at.fetched_at);
+                   );
+                    els.lastUpdate.text els.lastUpdate.textContent =Content = `К `Кэшэш: ${: ${date.todate.toLocaleTimeStringLocaleTimeString([], {([], {hour:'hour:'2-digit2-digit', minute', minute:'2:'2-digit'-digit'})}`})}`;
                 } else {
-                    els.lastUpdate.textContent = `📆 Из кэша`;
+                   ;
+                } else {
+                    els.last els.lastUpdate.textContent =Update.textContent = `Из `Из кэ кэша`;
+               ша`;
                 }
-                els.refreshBtn.style.display = 'block';
-            } else {
-                fetchSchedule(state.group);
+                els.refreshBtn.style.display = }
+                els.refreshBtn.style 'block';
+           .display = 'block';
+            } else } else {
+                fetchSchedule {
+                fetchSchedule(state.group(state.group);
             }
         }
     }
 
-    els.searchBtn.addEventListener('click', (e) => {
+    els.searchBtn.addEventListener);
+            }
+        }
+    }
+
+    els.searchBtn.addEventListener('click', (e)('click', (e) => => {
+        e.preventDefault {
         e.preventDefault();
-        const val = els.input.value.trim();
-        if (val) fetchSchedule(val, true);
-        else showError('Введите номер группы (например, ПИ2403)');
+        const();
+        const val = els.input val = els.input.value.trim.value.trim();
+        if (();
+        if (val)val) fetchSchedule fetchSchedule(val, true(val, true);
+        else);
+        else showError('В showError('Введите номерведите номер группы ( группы (например, ПИнапример, ПИ24032403))');
     });
-    
-    els.input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            els.searchBtn.click();
-        }
+    els');
     });
-    
-    els.refreshBtn.addEventListener('click', () => {
-        if (state.group) fetchSchedule(state.group, true);
-    });
-    
-    els.tabs.forEach((tab, idx) => {
-        tab.addEventListener('click', () => {
-            if (state.data) {
-                state.currentWeekIndex = idx;
-                updateTabsUI();
-                renderDays(idx);
-            }
-        });
-    });
+    els.input.addEventListener.input.addEventListener('keypress',('keypress', (e (e) =>) => { if (e { if (e.key ===.key === 'Enter') els 'Enter') els.searchBtn.searchBtn.click(); });
+   .click(); });
+    els.ref els.refreshBtn.addEventListener('reshBtn.addEventListener('click',click', () => { if () => { if (state (state.group).group) fetchSchedule(state.group fetchSchedule(state.group, true, true); });
+    els); });
+    els.tabs.tabs.forEach((tab,.forEach((tab, idx) idx) => tab.addEventListener(' => tab.addEventListener('click',click', () => { if () => { if (state (state.data) { state.data).currentWeek { state.currentWeekIndex =Index = idx; updateTabsUI(); renderDays(idx); } idx; updateTabsUI(); render }Days(idx); } }));
 
-    // Адаптация при открытии клавиатуры на мобильных
-    if ('visualViewport' in window) {
-        window.visualViewport.addEventListener('resize', () => {
-            if (window.innerWidth <= 768) {
-                const keyboardActive = window.visualViewport.height < window.innerHeight - 100;
-                if (keyboardActive) {
-                    document.querySelector('.content').style.paddingBottom = '20px';
-                } else {
-                    document.querySelector('.content').style.paddingBottom = '110px';
-                }
+    // Кор));
+
+    // Корреректировкактировка отступа при откры отступа при открытии клавиатуры натии клавиатуры на мобильных
+    if мобильных
+    if ('visual ('visualViewport' inViewport' in window) {
+        window) {
+        window. window.visualViewvisualViewport.addEventListenerport.addEventListener('resize',('resize', () => () => {
+            if ( {
+            if (window.innerWidth <=window.innerWidth <= 768 768)) {
+                const {
+                const keyboardActive keyboardActive = window = window.visual.visualViewViewport.heightport.height < window.innerHeight - 100 < window.innerHeight - 100;
+                document.querySelector('.content;
+                document.querySelector('.content').style').style.padding.paddingBottom = keyboardActive ? '20pxBottom = keyboardActive ? '20px' :' : '110 '110pxpx';
+           ';
             }
+        }
         });
+    });
     }
+
+    init }
 
     init();
+</();
 </script>
+</bodyscript>
 </body>
-</html>
+</>
+</htmlhtml>
